@@ -17,6 +17,9 @@ class Analytics(models.Model):
     class Meta:
         managed = False
         db_table = 'analytics'
+        # Параметры для панели администратора
+        verbose_name = "Аналитика"
+        verbose_name_plural = "Аналитика"
 
 
 class Camera(models.Model):
@@ -28,6 +31,9 @@ class Camera(models.Model):
     class Meta:
         managed = False
         db_table = 'camera'
+        # Параметры для панели администратора
+        verbose_name = "Камера"
+        verbose_name_plural = "Камеры"
 
 
 class CameraScreen(models.Model):
@@ -37,6 +43,9 @@ class CameraScreen(models.Model):
     class Meta:
         managed = False
         db_table = 'camera_screen'
+        # Параметры для панели администратора
+        verbose_name = "Камера-экран"
+        verbose_name_plural = "Камера-экран"
 
 
 class MediaContent(models.Model):
@@ -46,6 +55,9 @@ class MediaContent(models.Model):
     class Meta:
         managed = False
         db_table = 'media_content'
+        # Параметры для панели администратора
+        verbose_name = "Медиаконтент"
+        verbose_name_plural = "Медиаконтент"
 
 
 class Schedule(models.Model):
@@ -56,6 +68,9 @@ class Schedule(models.Model):
     class Meta:
         managed = False
         db_table = 'schedule'
+        # Параметры для панели администратора
+        verbose_name = "Расписание"
+        verbose_name_plural = "Расписание"
 
 
 class Screen(models.Model):
@@ -66,3 +81,6 @@ class Screen(models.Model):
     class Meta:
         managed = False
         db_table = 'screen'
+        # Параметры для панели администратора
+        verbose_name = "Экран"
+        verbose_name_plural = "Экраны"
