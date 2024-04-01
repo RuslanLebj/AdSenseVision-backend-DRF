@@ -9,37 +9,74 @@ from rest_framework.viewsets import ViewSet
 # Create your views here.
 
 
-class MediaContentViewSet(ViewSet):
+# Базовый класс для ViewSet для определения поведния
+class BaseViewSet(ViewSet):
+    @classmethod
+    def get_object(cls, pk):
+        try:
+            return cls.model.objects.get(pk=pk)
+        except cls.model.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+
+
+class MediaContentViewSet(BaseViewSet):
+    model = MediaContent
+    queryset = model.objects.all()
+    serializer_class = MediaContentSerializer
+
     def list(self, request):
-        queryset = MediaContent.objects.all()
-        serializer = MediaContentSerializer(queryset, many=True)
+        queryset = self.queryset
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         instance = self.get_object(pk)
-        serializer = MediaContentSerializer(instance)
+        serializer = self.serializer_class(instance)
         return Response(serializer.data)
 
-    def get_object(self, pk):
-        try:
-            return MediaContent.objects.get(pk=pk)
-        except MediaContent.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
+    def destroy(self, request, pk=None):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class CameraViewSet(ViewSet):
+class CameraViewSet(BaseViewSet):
+    model = Camera
+    queryset = model.objects.all()
+    serializer_class = CameraSerializer
+
     def list(self, request):
-        queryset = Camera.objects.all()
-        serializer = CameraSerializer(queryset, many=True)
+        queryset = self.queryset
+        serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
         instance = self.get_object(pk)
-        serializer = CameraSerializer(instance)
+        serializer = self.serializer_class(instance)
         return Response(serializer.data)
 
-    def get_object(self, pk):
-        try:
-            return Camera.objects.get(pk=pk)
-        except Camera.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
+    def destroy(self, request, pk=None):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ScreenViewSet(BaseViewSet):
+    model = Screen
+    queryset = model.objects.all()
+    serializer_class = ScreenSerializer
+
+    def list(self, request):
+        queryset = self.queryset
+        serializer = self.serializer_class(queryset, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        instance = self.get_object(pk)
+        serializer = self.serializer_class(instance)
+        return Response(serializer.data)
+
+    def destroy(self, request, pk=None):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
