@@ -2,3 +2,5 @@
 __pycache__/
 # Ignore  IntelliJ IDEA config file
 .idea/
+# Ignore virtual environment
+.venv/
