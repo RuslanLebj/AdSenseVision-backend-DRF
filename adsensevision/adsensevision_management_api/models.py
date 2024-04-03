@@ -8,20 +8,6 @@
 from django.db import models
 
 
-class Analytics(models.Model):
-    media_content = models.ForeignKey('MediaContent', models.DO_NOTHING, blank=True, null=True)
-    screen = models.ForeignKey('Screen', models.DO_NOTHING, blank=True, null=True)
-    total_viewing_time = models.TimeField(blank=True, null=True)
-    max_viewers_count = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'analytics'
-        # Параметры для панели администратора
-        verbose_name = "Аналитика"
-        verbose_name_plural = "Аналитика"
-
-
 class Camera(models.Model):
     name = models.CharField(max_length=120)
     address = models.CharField(max_length=80)
@@ -49,8 +35,10 @@ class CameraScreen(models.Model):
 
 
 class MediaContent(models.Model):
-    name = models.CharField(max_length=120, blank=True, null=True)
-    link = models.CharField(max_length=250, blank=True, null=True)
+    name = models.CharField(max_length=120)
+    link = models.CharField(max_length=250)
+    duration = models.TimeField()
+    preview = models.CharField(max_length=250)
 
     class Meta:
         managed = False
@@ -61,7 +49,7 @@ class MediaContent(models.Model):
 
 
 class Schedule(models.Model):
-    serial_number = models.IntegerField(blank=True, null=True)
+    serial_number = models.IntegerField()
     media_content = models.ForeignKey(MediaContent, models.DO_NOTHING, blank=True, null=True)
     screen = models.ForeignKey('Screen', models.DO_NOTHING, blank=True, null=True)
 
@@ -84,3 +72,18 @@ class Screen(models.Model):
         # Параметры для панели администратора
         verbose_name = "Экран"
         verbose_name_plural = "Экраны"
+
+
+class Statistics(models.Model):
+    media_content = models.ForeignKey(MediaContent, models.DO_NOTHING, blank=True, null=True)
+    screen = models.ForeignKey(Screen, models.DO_NOTHING, blank=True, null=True)
+    total_viewing_time = models.TimeField()
+    max_viewers_count = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'statistics'
+        # Параметры для панели администратора
+        verbose_name = "Статистика"
+        verbose_name_plural = "Статистика"
+

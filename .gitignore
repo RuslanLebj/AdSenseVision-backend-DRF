@@ -4,3 +4,5 @@ __pycache__/
 .idea/
 # Ignore virtual environment
 .venv/
+# Igonre files which are uploaded by the users
+/media/

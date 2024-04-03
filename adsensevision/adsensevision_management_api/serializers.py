@@ -1,11 +1,5 @@
 from rest_framework import serializers
-from .models import Analytics, Camera, CameraScreen, MediaContent, Schedule, Screen
-
-
-class AnalyticsSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Analytics
-        fields = '__all__'
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen
 
 
 class CameraSerializer(serializers.ModelSerializer):

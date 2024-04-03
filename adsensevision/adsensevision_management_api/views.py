@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Analytics, Camera, CameraScreen, MediaContent, Schedule, Screen
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
 from .serializers import MediaContentSerializer, CameraSerializer, ScreenSerializer
 from rest_framework.viewsets import ViewSet
 # Create your views here.
