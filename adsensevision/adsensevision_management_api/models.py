@@ -36,9 +36,9 @@ class CameraScreen(models.Model):
 
 class MediaContent(models.Model):
     name = models.CharField(max_length=120)
-    link = models.CharField(max_length=250)
+    content = models.FileField(upload_to='videos/')  # Изменено на FileField
     duration = models.TimeField()
-    preview = models.CharField(max_length=250)
+    preview = models.ImageField(upload_to='previews/')  # Изменено на ImageFiled
 
     class Meta:
         managed = False

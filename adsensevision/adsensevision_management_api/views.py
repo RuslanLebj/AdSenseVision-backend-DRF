@@ -4,9 +4,13 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
-from .serializers import MediaContentSerializer, CameraSerializer, ScreenSerializer
-from rest_framework.viewsets import ModelViewSet
+from .serializers import CameraSerializer, ScreenSerializer, MediaContentReadSerializer, MediaContentWriteSerializer
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django.core.files.storage import default_storage
+from rest_framework import generics, mixins, views
+from django.core.files.storage import FileSystemStorage
+from rest_framework.parsers import FileUploadParser
+from django.conf import settings
 
 
 # Create your views here.
@@ -24,8 +28,8 @@ class ScreenViewSet(ModelViewSet):
 
 class MediaContentViewSet(ModelViewSet):
     queryset = MediaContent.objects.all()
-    serializer_class = MediaContentSerializer
 
-
-
-
+    def get_serializer_class(self):
+        if self.action in ['create', 'update', 'partial_update']:
+            return MediaContentWriteSerializer  # Использование сериализатора для записи
+        return MediaContentReadSerializer  # Использование сериализатора для чтения

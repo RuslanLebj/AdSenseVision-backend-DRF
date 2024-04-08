@@ -118,14 +118,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Media files can be defined as those files which are uploaded by the users
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
+
+# Media files can be defined as those files which are uploaded by the users
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -138,3 +138,6 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ]
 }
+
+# Настройка Celery для использования RabbitMQ
+CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
