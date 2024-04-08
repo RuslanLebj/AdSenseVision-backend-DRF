@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CameraViewSet, ScreenViewSet, MediaContentViewSet
+from .views import CameraViewSet, CameraScreenViewSet, ScreenViewSet, MediaContentViewSet, ScheduleViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -10,6 +10,8 @@ router = DefaultRouter()
 # Регистрация ViewSet'ов с router
 router.register(r'camera', CameraViewSet, basename='camera')
 router.register(r'screen', ScreenViewSet, basename='screen')
+router.register(r'camerascreen', CameraScreenViewSet, basename='camerascreen')
+router.register(r'schedule', ScheduleViewSet, basename='schedule')
 router.register(r'mediacontent', MediaContentViewSet, basename='mediacontent')
 
 urlpatterns = [

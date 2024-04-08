@@ -139,5 +139,3 @@ REST_FRAMEWORK = {
     ]
 }
 
-# Настройка Celery для использования RabbitMQ
-CELERY_BROKER_URL = 'amqp://guest:guest@localhost'

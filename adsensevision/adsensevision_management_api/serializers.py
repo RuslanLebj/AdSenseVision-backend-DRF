@@ -1,13 +1,11 @@
 from rest_framework import serializers
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen
-from .tasks import process_video
-from celery import shared_task
 from moviepy.editor import VideoFileClip
 from django.core.files.base import ContentFile
 from .models import MediaContent
 import os
 import tempfile
-from io import BytesIO
+
 
 class CameraSerializer(serializers.ModelSerializer):
     class Meta:
@@ -77,9 +75,10 @@ class MediaContentWriteSerializer(serializers.ModelSerializer):
                 media_content.preview.save(f"{filename}.jpg", ContentFile(file.read()), save=False)
 
         finally:
-            video.close()  # Явно закрываем clip
+            video.close()  # Явно закрываем video
             os.remove(temp_preview_path)  # Удаляем временный файл
 
         # Сохранение изменений в объекте MediaContent
         media_content.save(update_fields=['name', 'duration', 'preview'])
         return instance
+

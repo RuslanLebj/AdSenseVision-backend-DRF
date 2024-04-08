@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
-from .serializers import CameraSerializer, ScreenSerializer, MediaContentReadSerializer, MediaContentWriteSerializer
+from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, MediaContentReadSerializer, MediaContentWriteSerializer
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from django.core.files.storage import default_storage
 from rest_framework import generics, mixins, views
@@ -24,6 +24,16 @@ class CameraViewSet(ModelViewSet):
 class ScreenViewSet(ModelViewSet):
     queryset = Screen.objects.all()
     serializer_class = ScreenSerializer
+
+
+class CameraScreenViewSet(ModelViewSet):
+    queryset = CameraScreen.objects.all()
+    serializer_class = CameraScreenSerializer
+
+
+class ScheduleViewSet(ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
 
 
 class MediaContentViewSet(ModelViewSet):
