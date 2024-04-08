@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Camera, CameraScreen, MediaContent, Schedule, Screen
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
 from moviepy.editor import VideoFileClip
 from django.core.files.base import ContentFile
 from .models import MediaContent
@@ -26,6 +26,12 @@ class ScheduleSerializer(serializers.ModelSerializer):
 
 
 class ScreenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Screen
+        fields = '__all__'
+
+
+class StatisticsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Screen
         fields = '__all__'

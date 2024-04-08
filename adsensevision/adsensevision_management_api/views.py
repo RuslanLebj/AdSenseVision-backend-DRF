@@ -1,16 +1,7 @@
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
-from rest_framework import status
-from rest_framework.views import APIView
-from rest_framework.response import Response
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
-from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, MediaContentReadSerializer, MediaContentWriteSerializer
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from django.core.files.storage import default_storage
-from rest_framework import generics, mixins, views
-from django.core.files.storage import FileSystemStorage
-from rest_framework.parsers import FileUploadParser
-from django.conf import settings
+from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
+    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer
+from rest_framework.viewsets import ModelViewSet
 
 
 # Create your views here.
@@ -32,6 +23,11 @@ class CameraScreenViewSet(ModelViewSet):
 
 
 class ScheduleViewSet(ModelViewSet):
+    queryset = Schedule.objects.all()
+    serializer_class = ScheduleSerializer
+
+
+class StatisticsViewSet(ModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
 
