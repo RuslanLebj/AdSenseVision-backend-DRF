@@ -35,10 +35,10 @@ class CameraScreen(models.Model):
 
 
 class MediaContent(models.Model):
-    name = models.CharField(max_length=120)
-    content = models.FileField(upload_to='videos/')  # Изменено на FileField
-    duration = models.TimeField()
-    preview = models.ImageField(upload_to='previews/')  # Изменено на ImageFiled
+    video = models.FileField(upload_to='videos/')  # Изменено на FileField
+    name = models.CharField(max_length=120, blank=True, null=True)
+    duration = models.TimeField(blank=True, null=True)
+    preview = models.ImageField(upload_to='previews/', blank=True, null=True)  # Изменено на ImageFiled
 
     class Meta:
         managed = False
@@ -49,7 +49,7 @@ class MediaContent(models.Model):
 
 
 class Schedule(models.Model):
-    serial_number = models.IntegerField()
+    queue_number = models.IntegerField()
     media_content = models.ForeignKey(MediaContent, models.DO_NOTHING, blank=True, null=True)
     screen = models.ForeignKey('Screen', models.DO_NOTHING, blank=True, null=True)
 

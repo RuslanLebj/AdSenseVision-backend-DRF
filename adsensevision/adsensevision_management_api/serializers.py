@@ -46,14 +46,14 @@ class MediaContentReadSerializer(serializers.ModelSerializer):
 class MediaContentWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = MediaContent
-        fields = ['content']  # Ограничение полей для записи
+        fields = ['video']  # Ограничение полей для записи
 
     def create(self, validated_data):
         instance = super().create(validated_data)
         # Получение объекта MediaContent по ID
         media_content = MediaContent.objects.get(id=instance.id)
         # Получение объекта File, связанного с полем content в модели MediaContent
-        video_file = media_content.content
+        video_file = media_content.video
 
         # Загрузка видеофайла в объект VideoFileClip для обработки
         video = VideoFileClip(video_file.path)
@@ -66,7 +66,7 @@ class MediaContentWriteSerializer(serializers.ModelSerializer):
         media_content.duration = str(int(video.duration // 60)) + ":" + str(int(video.duration % 60))
 
         # Задаем время кадра для превью
-        frame_time = 10
+        frame_time = 0
 
         # Создаем временный файл
         fd, temp_preview_path = tempfile.mkstemp(suffix=".jpg")
@@ -74,7 +74,7 @@ class MediaContentWriteSerializer(serializers.ModelSerializer):
 
         try:
             # Сохраняем кадр во временный файл
-            video.save_frame(temp_preview_path, t=0)
+            video.save_frame(temp_preview_path, t=frame_time)
 
             # Открываем и читаем временный файл для сохранения в модель
             with open(temp_preview_path, "rb") as file:
