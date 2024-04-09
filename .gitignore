@@ -3,6 +3,6 @@ __pycache__/
 # Ignore  IntelliJ IDEA config file
 .idea/
 # Ignore virtual environment
-.venv/
+venv/
 # Igonre files which are uploaded by the users
 media/
