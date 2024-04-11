@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import CameraViewSet, CameraScreenViewSet, ScreenViewSet, MediaContentViewSet, ScheduleViewSet, StatisticsViewSet
+from .views import CameraViewSet, CameraScreenViewSet, ScreenViewSet, MediaContentViewSet, ScheduleViewSet, StatisticsViewSet, CameraServiceDetailAPIView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -15,8 +15,10 @@ router.register(r'schedule', ScheduleViewSet, basename='schedule')
 router.register(r'mediacontent', MediaContentViewSet, basename='mediacontent')
 router.register(r'statistics', StatisticsViewSet, basename='statistics')
 
+
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/camera-service-detail', CameraServiceDetailAPIView.as_view(), name='camera-service-detail'),
 ]
 
 # Регистрация медиа файлов

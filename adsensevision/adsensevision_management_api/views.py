@@ -2,6 +2,7 @@ from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statis
 from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
     MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.http import HttpResponse, Http404
@@ -60,8 +61,8 @@ class ScheduleViewSet(ModelViewSet):
 
 
 class StatisticsViewSet(ModelViewSet):
-    queryset = Schedule.objects.all()
-    serializer_class = ScheduleSerializer
+    queryset = Statistics.objects.all()
+    serializer_class = StatisticsSerializer
 
 
 class MediaContentViewSet(ModelViewSet):
@@ -102,3 +103,34 @@ class MediaContentViewSet(ModelViewSet):
         return response
 
 
+class CameraServiceDetailAPIView(APIView):
+    def get(self, request):
+        all_cameras_data = []  # Список для хранения данных всех камер
+
+        for camera in Camera.objects.all():  # Перебор всех камер
+            camera_data = CameraSerializer(camera).data
+            camera_screens = CameraScreen.objects.filter(camera=camera)
+
+            screens_data = []
+            for camera_screen in camera_screens:
+                screen = camera_screen.screen
+                screen_data = ScreenSerializer(screen).data
+
+                schedules = Schedule.objects.filter(screen=screen)
+                schedules_data = ScheduleSerializer(schedules, many=True).data
+
+                media_contents_data = []
+                for schedule in schedules:
+                    media_content = schedule.media_content
+                    media_content_data = MediaContentReadSerializer(media_content).data if media_content else None
+                    if media_content_data:
+                        media_contents_data.append(media_content_data)
+
+                screen_data['schedules'] = schedules_data
+                screen_data['media_contents'] = media_contents_data
+                screens_data.append(screen_data)
+
+            camera_data['screens'] = screens_data
+            all_cameras_data.append(camera_data)
+
+        return Response(all_cameras_data)

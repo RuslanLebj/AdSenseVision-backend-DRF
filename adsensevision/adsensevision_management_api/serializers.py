@@ -33,7 +33,7 @@ class ScreenSerializer(serializers.ModelSerializer):
 
 class StatisticsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Screen
+        model = Statistics
         fields = '__all__'
 
 
