@@ -43,6 +43,12 @@ class MediaContentReadSerializer(serializers.ModelSerializer):
         fields = '__all__'  # Все поля для чтения
 
 
+class MediaContentUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MediaContent
+        fields = ['name']
+
+
 class MediaContentWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = MediaContent

@@ -1,6 +1,6 @@
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
 from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
-    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer
+    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer, MediaContentUpdateSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -70,8 +70,10 @@ class MediaContentViewSet(ModelViewSet):
 
     # Определяем класс сериализатора в зависимости от методов
     def get_serializer_class(self):
-        if self.action in ['create', 'update', 'partial_update']:
+        if self.action in ['create']:
             return MediaContentWriteSerializer  # Использование сериализатора для записи
+        if self.action in ['update', 'partial_update']:
+            return MediaContentUpdateSerializer  # Использование сериализатора для обновления
         return MediaContentReadSerializer  # Использование сериализатора для чтения
 
     # Скачивание видео
