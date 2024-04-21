@@ -37,6 +37,8 @@ class CameraScreen(models.Model):
 class MediaContent(models.Model):
     video = models.FileField(upload_to='videos/')  # Изменено на FileField
     name = models.CharField(max_length=120, blank=True, null=True)
+    description = models.CharField(max_length=360, blank=True, null=True)
+    upload_date = models.DateField(blank=True, null=True)
     duration = models.TimeField(blank=True, null=True)
     preview = models.ImageField(upload_to='previews/', blank=True, null=True)  # Изменено на ImageFiled
 
@@ -86,4 +88,19 @@ class Statistics(models.Model):
         # Параметры для панели администратора
         verbose_name = "Статистика"
         verbose_name_plural = "Статистика"
+
+
+class FrameStatistics(models.Model):
+    media_content = models.ForeignKey('MediaContent', models.DO_NOTHING, blank=True, null=True)
+    screen = models.ForeignKey('Screen', models.DO_NOTHING, blank=True, null=True)
+    viewing_time = models.TimeField()
+    viewers_count = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'frame_statistics'
+        # Параметры для панели администратора
+        verbose_name = "Статистика кадра"
+        verbose_name_plural = "Статистика кадров"
+
 

@@ -1,6 +1,7 @@
-from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics, FrameStatistics
 from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
-    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer, MediaContentUpdateSerializer
+    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer, MediaContentUpdateSerializer, \
+    FrameStatisticsSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -65,6 +66,11 @@ class StatisticsViewSet(ModelViewSet):
     serializer_class = StatisticsSerializer
 
 
+class FrameStatisticsViewSet(ModelViewSet):
+    queryset = FrameStatistics.objects.all()
+    serializer_class = FrameStatisticsSerializer
+
+
 class MediaContentViewSet(ModelViewSet):
     queryset = MediaContent.objects.all()
 
@@ -75,6 +81,25 @@ class MediaContentViewSet(ModelViewSet):
         if self.action in ['update', 'partial_update']:
             return MediaContentUpdateSerializer  # Использование сериализатора для обновления
         return MediaContentReadSerializer  # Использование сериализатора для чтения
+
+    # Переопределение метода update для возвращения полных данных после обновления
+    def update(self, request, *args, **kwargs):
+        # Определяем, является ли обновление частичным (PATCH запрос)
+        partial = kwargs.pop('partial', False)
+        # Получаем объект, который должен быть обновлен
+        instance = self.get_object()
+        # Создаем сериализатор для обновления с новыми данными запроса
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        # Проверяем валидность данных
+        serializer.is_valid(raise_exception=True)
+        # Выполняем операцию обновления
+        self.perform_update(serializer)
+
+        # После обновления создаем новый экземпляр сериализатора для чтения
+        # чтобы включить в ответ все поля объекта
+        read_serializer = MediaContentReadSerializer(instance)
+        # Возвращаем ответ с полными данными о медиаконтенте
+        return Response(read_serializer.data)
 
     # Скачивание видео
     @action(detail=True, methods=['get'], url_path='video/download')
@@ -106,6 +131,7 @@ class MediaContentViewSet(ModelViewSet):
 
 
 class CameraServiceDetailAPIView(APIView):
+
     def get(self, request):
         all_cameras_data = []  # Список для хранения данных всех камер
 

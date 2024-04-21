@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics, FrameStatistics
 from moviepy.editor import VideoFileClip
 from django.core.files.base import ContentFile
 from .models import MediaContent
 import os
 import tempfile
+from django.utils import timezone
 
 
 class CameraSerializer(serializers.ModelSerializer):
@@ -37,6 +38,12 @@ class StatisticsSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class FrameStatisticsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FrameStatistics
+        fields = '__all__'
+
+
 class MediaContentReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = MediaContent
@@ -46,7 +53,7 @@ class MediaContentReadSerializer(serializers.ModelSerializer):
 class MediaContentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = MediaContent
-        fields = ['name']
+        fields = ['name', 'description']
 
 
 class MediaContentWriteSerializer(serializers.ModelSerializer):
@@ -67,6 +74,9 @@ class MediaContentWriteSerializer(serializers.ModelSerializer):
         # Извлечение названия файла без расширения
         filename, _ = os.path.splitext(os.path.basename(video_file.name))
         media_content.name = filename
+
+        # Установка текущей даты и времени загрузки
+        media_content.upload_date = timezone.now()
 
         # Извлечение продолжительности видео и сохранение ее в формате MM:SS
         media_content.duration = str(int(video.duration // 60)) + ":" + str(int(video.duration % 60))
