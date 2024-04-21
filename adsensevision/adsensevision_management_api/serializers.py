@@ -101,6 +101,6 @@ class MediaContentWriteSerializer(serializers.ModelSerializer):
             os.remove(temp_preview_path)  # Удаляем временный файл
 
         # Сохранение изменений в объекте MediaContent
-        media_content.save(update_fields=['name', 'duration', 'preview'])
+        media_content.save(update_fields=['name', 'duration', 'preview', 'upload_date'])
         return instance
 
