@@ -45,7 +45,11 @@ class FrameStatisticsSerializer(serializers.ModelSerializer):
 
 
 class MediaContentReadSerializer(serializers.ModelSerializer):
-    # Определение дополнительных полей для полного URL видео и превью
+    # Определение дополнительных полей для полного URL видео и превью:
+    # SerializerMethodField: Этот тип поля в сериализаторе указывает на то, что значение поля должно быть получено с помощью метода, который вы определите. Когда Django REST Framework сериализует объект, он будет искать метод в сериализаторе, который начинается с get_ за которым следует имя поля. Это означает, что:
+    # Для поля video будет вызываться метод get_video.
+    # Для поля preview будет вызываться метод get_preview.
+    # Контекст запроса: Эти методы используют self.context.get('request') для получения текущего объекта запроса. Объект запроса используется для получения полного URL файла с помощью метода build_absolute_uri. Это полезно для создания абсолютных URL-адресов для медиафайлов, которые могут быть доступны клиентам вне сервера, где хостится ваше приложение.
     video = serializers.SerializerMethodField()
     preview = serializers.SerializerMethodField()
 

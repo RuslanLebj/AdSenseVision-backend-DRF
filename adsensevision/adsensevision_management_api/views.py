@@ -80,7 +80,7 @@ class MediaContentViewSet(ModelViewSet):
             return MediaContentWriteSerializer  # Использование сериализатора для записи
         if self.action in ['update', 'partial_update']:
             return MediaContentUpdateSerializer  # Использование сериализатора для обновления
-        return MediaContentReadSerializer # Использование сериализатора для чтения
+        return MediaContentReadSerializer  # Использование сериализатора для чтения
 
     # В классе ViewSet (или любом другом классе, который использует сериализаторы)
     # метод get_serializer_context определяется для того, чтобы добавлять дополнительные данные в контекст,
