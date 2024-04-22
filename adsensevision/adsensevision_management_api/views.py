@@ -139,7 +139,7 @@ class MediaContentViewSet(ModelViewSet):
 
 class CameraServiceDetailAPIView(APIView):
 
-    # Возвращаем полные данные о всех камерых, чьи экраны имеют расписание
+    # Возвращаем полные данные о всех камерах, чьи экраны имеют расписание
     def get(self, request):
         all_cameras_data = []  # Список для хранения данных всех камер
 
