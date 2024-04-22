@@ -80,6 +80,12 @@ class MediaContentUpdateSerializer(serializers.ModelSerializer):
         fields = ['name', 'description']
 
 
+class MediaContentBaseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MediaContent
+        fields = '__all__'
+
+
 class MediaContentWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = MediaContent

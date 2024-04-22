@@ -1,7 +1,7 @@
 from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics, FrameStatistics
 from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
     MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer, MediaContentUpdateSerializer, \
-    FrameStatisticsSerializer
+    FrameStatisticsSerializer, MediaContentBaseSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -35,7 +35,7 @@ class ScreenViewSet(ModelViewSet):
 
         screen_data = ScreenSerializer(screen).data
         schedule_data = ScheduleSerializer(schedules, many=True).data
-        media_content_data = MediaContentReadSerializer(media_contents, many=True).data
+        media_content_data = MediaContentBaseSerializer(media_contents, many=True).data
 
         response_data = {
             'screen': screen_data,
@@ -139,33 +139,42 @@ class MediaContentViewSet(ModelViewSet):
 
 class CameraServiceDetailAPIView(APIView):
 
+    # Возвращаем полные данные о всех камерых, чьи экраны имеют расписание
     def get(self, request):
         all_cameras_data = []  # Список для хранения данных всех камер
 
-        for camera in Camera.objects.all():  # Перебор всех камер
+        # Перебор всех камер
+        for camera in Camera.objects.all():
             camera_data = CameraSerializer(camera).data
             camera_screens = CameraScreen.objects.filter(camera=camera)
 
             screens_data = []
+            camera_has_schedules = False  # Флаг наличия расписания у экранов данной камеры
+
+            # Перебор всех экранов у камеры
             for camera_screen in camera_screens:
                 screen = camera_screen.screen
-                screen_data = ScreenSerializer(screen).data
-
                 schedules = Schedule.objects.filter(screen=screen)
-                schedules_data = ScheduleSerializer(schedules, many=True).data
 
-                media_contents_data = []
-                for schedule in schedules:
-                    media_content = schedule.media_content
-                    media_content_data = MediaContentReadSerializer(media_content).data if media_content else None
-                    if media_content_data:
-                        media_contents_data.append(media_content_data)
+                if schedules.exists():  # Проверка наличия расписаний у экрана
+                    camera_has_schedules = True
+                    screen_data = ScreenSerializer(screen).data
+                    schedules_data = ScheduleSerializer(schedules, many=True).data
 
-                screen_data['schedules'] = schedules_data
-                screen_data['media_contents'] = media_contents_data
-                screens_data.append(screen_data)
+                    media_contents_data = []
+                    for schedule in schedules:
+                        media_content = schedule.media_content
+                        media_content_data = MediaContentBaseSerializer(media_content).data if media_content else None
+                        if media_content_data:
+                            media_contents_data.append(media_content_data)
 
-            camera_data['screens'] = screens_data
-            all_cameras_data.append(camera_data)
+                    screen_data['schedules'] = schedules_data
+                    screen_data['media_contents'] = media_contents_data
+                    screens_data.append(screen_data)
+
+            # Добавляем данные камеры только если у неё есть экраны с расписаниями
+            if camera_has_schedules:
+                camera_data['screens'] = screens_data
+                all_cameras_data.append(camera_data)
 
         return Response(all_cameras_data)
