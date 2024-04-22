@@ -80,7 +80,14 @@ class MediaContentViewSet(ModelViewSet):
             return MediaContentWriteSerializer  # Использование сериализатора для записи
         if self.action in ['update', 'partial_update']:
             return MediaContentUpdateSerializer  # Использование сериализатора для обновления
-        return MediaContentReadSerializer  # Использование сериализатора для чтения
+        return MediaContentReadSerializer # Использование сериализатора для чтения
+
+    # В классе ViewSet (или любом другом классе, который использует сериализаторы)
+    # метод get_serializer_context определяется для того, чтобы добавлять дополнительные данные в контекст,
+    # который затем передается в сериализатор.
+    def get_serializer_context(self):
+        # Возвращаем контекст с объектом request
+        return {'request': self.request}
 
     # Переопределение метода update для возвращения полных данных после обновления
     def update(self, request, *args, **kwargs):
@@ -95,9 +102,9 @@ class MediaContentViewSet(ModelViewSet):
         # Выполняем операцию обновления
         self.perform_update(serializer)
 
-        # После обновления создаем новый экземпляр сериализатора для чтения
+        # После обновления создаем новый экземпляр сериализатора для чтения,
         # чтобы включить в ответ все поля объекта
-        read_serializer = MediaContentReadSerializer(instance)
+        read_serializer = MediaContentReadSerializer(instance, context=self.get_serializer_context())
         # Возвращаем ответ с полными данными о медиаконтенте
         return Response(read_serializer.data)
 

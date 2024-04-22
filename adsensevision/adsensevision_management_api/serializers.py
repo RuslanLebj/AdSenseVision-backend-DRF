@@ -45,9 +45,29 @@ class FrameStatisticsSerializer(serializers.ModelSerializer):
 
 
 class MediaContentReadSerializer(serializers.ModelSerializer):
+    # Определение дополнительных полей для полного URL видео и превью
+    video = serializers.SerializerMethodField()
+    preview = serializers.SerializerMethodField()
+
     class Meta:
         model = MediaContent
-        fields = '__all__'  # Все поля для чтения
+        fields = '__all__'  # Включаем все поля модели в сериализатор
+
+    # Метод для получения полного URL видеофайла
+    def get_video(self, obj):
+        if obj.video:
+            request = self.context.get('request')  # Получение объекта запроса из контекста
+            video_url = obj.video.url  # Получение URL из модели
+            return request.build_absolute_uri(video_url)  # Строим полный URL
+        return None  # Возвращаем None, если видео отсутствует
+
+    # Метод для получения полного URL файла превью
+    def get_preview(self, obj):
+        if obj.preview:
+            request = self.context.get('request')  # Получение объекта запроса из контекста
+            preview_url = obj.preview.url  # Получение URL из модели
+            return request.build_absolute_uri(preview_url)  # Строим полный URL
+        return None  # Возвращаем None, если превью отсутствует
 
 
 class MediaContentUpdateSerializer(serializers.ModelSerializer):
