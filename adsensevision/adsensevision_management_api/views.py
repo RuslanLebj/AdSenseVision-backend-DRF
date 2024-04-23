@@ -12,6 +12,7 @@ from django.conf import settings
 import os
 from urllib.parse import quote
 from django.core.files import File
+from django_filters import rest_framework as filters
 
 
 # Create your views here.
@@ -56,14 +57,37 @@ class CameraScreenViewSet(ModelViewSet):
     serializer_class = CameraScreenSerializer
 
 
+class ScheduleFilter(filters.FilterSet):
+    screen = filters.NumberFilter(field_name='screen')
+    media_content = filters.NumberFilter(field_name='media_content')
+    queue_number = filters.NumberFilter(field_name='queue_number')
+
+    class Meta:
+        model = Schedule
+        fields = ['screen', 'media_content', 'queue_number']
+
+
 class ScheduleViewSet(ModelViewSet):
     queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = ScheduleFilter
+
+
+class StatisticsFilter(filters.FilterSet):
+    screen = filters.NumberFilter(field_name='screen')
+    media_content = filters.NumberFilter(field_name='media_content')
+
+    class Meta:
+        model = Statistics
+        fields = ['screen', 'media_content']
 
 
 class StatisticsViewSet(ModelViewSet):
     queryset = Statistics.objects.all()
     serializer_class = StatisticsSerializer
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = StatisticsFilter
 
 
 class FrameStatisticsViewSet(ModelViewSet):
