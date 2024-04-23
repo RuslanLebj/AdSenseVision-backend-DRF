@@ -33,9 +33,11 @@ class ScreenSerializer(serializers.ModelSerializer):
 
 
 class StatisticsSerializer(serializers.ModelSerializer):
+    screen_detail = ScreenSerializer(source='screen', read_only=True)
+
     class Meta:
         model = Statistics
-        fields = '__all__'
+        fields = ['media_content', 'screen', 'screen_detail', 'total_viewing_time', 'max_viewers_count']
 
 
 class FrameStatisticsSerializer(serializers.ModelSerializer):

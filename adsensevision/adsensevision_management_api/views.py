@@ -104,7 +104,7 @@ class StatisticsViewSet(ModelViewSet):
         # Подготавливаем и отправляем ответ
         data = {
             'total_viewing_time': total_viewing_time['total_viewing_time__sum'],
-            'max_viewers': max_viewers['max_viewers_count__max']
+            'max_viewers_count': max_viewers['max_viewers_count__max']
         }
 
         return Response(data, status=status.HTTP_200_OK)
