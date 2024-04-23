@@ -13,6 +13,8 @@ import os
 from urllib.parse import quote
 from django.core.files import File
 from django_filters import rest_framework as filters
+from django.db.models import Sum, Max
+from rest_framework import status
 
 
 # Create your views here.
@@ -88,6 +90,24 @@ class StatisticsViewSet(ModelViewSet):
     serializer_class = StatisticsSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = StatisticsFilter
+
+    # Отправка агрегированных данных для отфильтрованного набора данных (queryset)
+    @action(detail=False, methods=['get'], url_path='aggregate')
+    def aggregate_statistics(self, request):
+        # Фильтруем queryset согласно переданным параметрам фильтрации
+        filtered_queryset = self.filter_queryset(self.get_queryset())
+
+        # Вычисляем агрегированные данные
+        total_viewing_time = filtered_queryset.aggregate(Sum('total_viewing_time'))
+        max_viewers = filtered_queryset.aggregate(Max('max_viewers_count'))
+
+        # Подготавливаем и отправляем ответ
+        data = {
+            'total_viewing_time': total_viewing_time['total_viewing_time__sum'],
+            'max_viewers': max_viewers['max_viewers_count__max']
+        }
+
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class FrameStatisticsViewSet(ModelViewSet):
