@@ -10,9 +10,10 @@ from django.db import models
 
 class Camera(models.Model):
     name = models.CharField(max_length=120)
-    address = models.CharField(max_length=80)
+    url_address = models.CharField(max_length=80)
     connection_login = models.CharField(max_length=50)
     connection_password = models.CharField(max_length=50)
+    location_address = models.CharField(max_length=120, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -67,6 +68,8 @@ class Screen(models.Model):
     name = models.CharField(max_length=120)
     start_time = models.TimeField()
     end_time = models.TimeField()
+    pause_time = models.TimeField()
+    update_date = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -81,6 +84,7 @@ class Statistics(models.Model):
     screen = models.ForeignKey(Screen, models.DO_NOTHING, blank=True, null=True)
     total_viewing_time = models.TimeField()
     max_viewers_count = models.IntegerField()
+    show_count = models.IntegerField()
 
     class Meta:
         managed = False
@@ -90,17 +94,17 @@ class Statistics(models.Model):
         verbose_name_plural = "Статистика"
 
 
-class FrameStatistics(models.Model):
-    media_content = models.ForeignKey('MediaContent', models.DO_NOTHING, blank=True, null=True)
-    screen = models.ForeignKey('Screen', models.DO_NOTHING, blank=True, null=True)
+class StatisticsPerShow(models.Model):
+    media_content = models.ForeignKey(MediaContent, models.DO_NOTHING, blank=True, null=True)
+    screen = models.ForeignKey(Screen, models.DO_NOTHING, blank=True, null=True)
     viewing_time = models.TimeField()
     viewers_count = models.IntegerField()
 
     class Meta:
         managed = False
-        db_table = 'frame_statistics'
+        db_table = 'statistics_per_show'
         # Параметры для панели администратора
-        verbose_name = "Статистика кадра"
-        verbose_name_plural = "Статистика кадров"
+        verbose_name = "Статистика показа"
+        verbose_name_plural = "Статистика показа"
 
 

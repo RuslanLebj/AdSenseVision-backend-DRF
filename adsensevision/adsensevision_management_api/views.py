@@ -1,7 +1,7 @@
-from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics, FrameStatistics
+from .models import Camera, CameraScreen, MediaContent, Schedule, Screen, Statistics, StatisticsPerShow
 from .serializers import CameraSerializer, ScreenSerializer, CameraScreenSerializer, ScheduleSerializer, \
-    MediaContentReadSerializer, MediaContentWriteSerializer, StatisticsSerializer, MediaContentUpdateSerializer, \
-    FrameStatisticsSerializer, MediaContentBaseSerializer
+    MediaContentReadSerializer, MediaContentCreateSerializer, StatisticsSerializer, MediaContentUpdateSerializer, \
+    StatisticsPerShowSerializer
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.decorators import action
@@ -38,7 +38,7 @@ class ScreenViewSet(ModelViewSet):
 
         screen_data = ScreenSerializer(screen).data
         schedule_data = ScheduleSerializer(schedules, many=True).data
-        media_content_data = MediaContentBaseSerializer(media_contents, many=True).data
+        media_content_data = MediaContentReadSerializer(media_contents, many=True).data
 
         response_data = {
             'screen': screen_data,
@@ -110,9 +110,9 @@ class StatisticsViewSet(ModelViewSet):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class FrameStatisticsViewSet(ModelViewSet):
-    queryset = FrameStatistics.objects.all()
-    serializer_class = FrameStatisticsSerializer
+class StatisticsPerShowViewSet(ModelViewSet):
+    queryset = StatisticsPerShow.objects.all()
+    serializer_class = StatisticsPerShowSerializer
 
 
 class MediaContentViewSet(ModelViewSet):
@@ -121,36 +121,42 @@ class MediaContentViewSet(ModelViewSet):
     # Определяем класс сериализатора в зависимости от методов
     def get_serializer_class(self):
         if self.action in ['create']:
-            return MediaContentWriteSerializer  # Использование сериализатора для записи
+            return MediaContentCreateSerializer  # Использование сериализатора для записи
         if self.action in ['update', 'partial_update']:
             return MediaContentUpdateSerializer  # Использование сериализатора для обновления
         return MediaContentReadSerializer  # Использование сериализатора для чтения
 
-    # В классе ViewSet (или любом другом классе, который использует сериализаторы)
-    # метод get_serializer_context определяется для того, чтобы добавлять дополнительные данные в контекст,
-    # который затем передается в сериализатор.
-    def get_serializer_context(self):
-        # Возвращаем контекст с объектом request
-        return {'request': self.request}
-
-    # Переопределение метода update для возвращения полных данных после обновления
-    def update(self, request, *args, **kwargs):
-        # Определяем, является ли обновление частичным (PATCH запрос)
-        partial = kwargs.pop('partial', False)
-        # Получаем объект, который должен быть обновлен
-        instance = self.get_object()
-        # Создаем сериализатор для обновления с новыми данными запроса
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        # Проверяем валидность данных
-        serializer.is_valid(raise_exception=True)
-        # Выполняем операцию обновления
-        self.perform_update(serializer)
-
-        # После обновления создаем новый экземпляр сериализатора для чтения,
-        # чтобы включить в ответ все поля объекта
-        read_serializer = MediaContentReadSerializer(instance, context=self.get_serializer_context())
-        # Возвращаем ответ с полными данными о медиаконтенте
-        return Response(read_serializer.data)
+    #
+    # # DRF Для создания полного URL нужен доступ к схеме (http или https) и домену. В Django и DRF это обычно достигается через объект request, доступный в сериализаторе через контекст.
+    #
+    # # В классе ViewSet (или любом другом классе, который использует сериализаторы) метод get_serializer_context определяется для того, чтобы добавлять дополнительные данные в контекст, который затем передается в сериализатор.
+    # def get_serializer_context(self):
+    #     # Возвращаем контекст с объектом request
+    #     return {'request': self.request}
+    #
+    # # Влияние Контекста на Сериализацию URL
+    # # Контекст request в сериализаторе:
+    # # Когда вы передаёте context в сериализатор, включая объект request, DRF использует информацию из этого запроса для формирования полных URL. Это связано с тем, что DRF рассматривает наличие объекта request в контексте как указание на то, что следует использовать абсолютные URL, поскольку информация о хосте и схеме (http или https) доступна из объекта request.
+    # # Отсутствие контекста request:
+    # # Когда контекст не предоставляется, DRF не имеет данных о том, какой базовый URL использовать, поэтому он генерирует относительные пути. Это происходит потому, что без контекста сериализатор не знает о базовом URL сервера и возвращает URL, который начинается непосредственно с местоположения файла в медиа-хранилище.
+    #
+    # # Переопределение метода update для возвращения полных данных после обновления (если в serializer fields указаны не все поля)
+    # def update(self, request, *args, **kwargs):
+    #     # Получаем объект, который должен быть обновлен
+    #     instance = self.get_object()
+    #     # Создаем сериализатор для обновления с новыми данными запроса
+    #     serializer = self.get_serializer(instance, data=request.data)
+    #     # Проверяем валидность данных
+    #     serializer.is_valid(raise_exception=True)
+    #     # Выполняем операцию обновления
+    #     self.perform_update(serializer)
+    #
+    #     # После обновления создаем новый экземпляр сериализатора,
+    #     # чтобы включить в ответ все поля объекта
+    #     serializer = MediaContentReadSerializer(instance, context=self.get_serializer_context())
+    #     # Возвращаем ответ с полными данными о медиаконтенте
+    #     return Response(serializer.data)
+    #
 
     # Скачивание видео
     @action(detail=True, methods=['get'], url_path='video/download')
@@ -208,7 +214,7 @@ class CameraServiceDetailAPIView(APIView):
                     media_contents_data = []
                     for schedule in schedules:
                         media_content = schedule.media_content
-                        media_content_data = MediaContentBaseSerializer(media_content).data if media_content else None
+                        media_content_data = MediaContentReadSerializer(media_content).data if media_content else None
                         if media_content_data:
                             media_contents_data.append(media_content_data)
 
