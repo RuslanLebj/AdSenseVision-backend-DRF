@@ -140,7 +140,3 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
-
-
-# Установка формата даты и времени для отображения в админ-панели
-TIME_FORMAT = 'H:i:s'  # 'd' - день, 'm' - месяц, 'Y' - год, 'H' - часы, 'i' - минуты, 's' - секунды
