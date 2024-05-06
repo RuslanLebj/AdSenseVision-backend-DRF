@@ -99,12 +99,14 @@ class StatisticsViewSet(ModelViewSet):
 
         # Вычисляем агрегированные данные
         total_viewing_time = filtered_queryset.aggregate(Sum('total_viewing_time'))
-        max_viewers = filtered_queryset.aggregate(Max('max_viewers_count'))
+        max_viewers_count = filtered_queryset.aggregate(Max('max_viewers_count'))
+        show_count = filtered_queryset.aggregate(Sum('show_count'))
 
         # Подготавливаем и отправляем ответ
         data = {
             'total_viewing_time': total_viewing_time['total_viewing_time__sum'],
-            'max_viewers_count': max_viewers['max_viewers_count__max']
+            'max_viewers_count': max_viewers_count['max_viewers_count__max'],
+            'show_count': show_count['show_count__sum']
         }
 
         return Response(data, status=status.HTTP_200_OK)
