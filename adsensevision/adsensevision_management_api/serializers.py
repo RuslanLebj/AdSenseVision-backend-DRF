@@ -37,7 +37,7 @@ class StatisticsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Statistics
-        fields = ['media_content', 'screen', 'screen_detail', 'total_viewing_time', 'max_viewers_count', 'show_count']
+        fields = '__all__'
 
 
 class StatisticsPerShowSerializer(serializers.ModelSerializer):

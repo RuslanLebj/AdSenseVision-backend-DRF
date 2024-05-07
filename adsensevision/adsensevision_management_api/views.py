@@ -15,6 +15,7 @@ from django.core.files import File
 from django_filters import rest_framework as filters
 from django.db.models import Sum, Max
 from rest_framework import status
+from datetime import timedelta
 
 
 # Create your views here.
@@ -98,15 +99,25 @@ class StatisticsViewSet(ModelViewSet):
         filtered_queryset = self.filter_queryset(self.get_queryset())
 
         # Вычисляем агрегированные данные
-        total_viewing_time = filtered_queryset.aggregate(Sum('total_viewing_time'))
-        max_viewers_count = filtered_queryset.aggregate(Max('max_viewers_count'))
-        show_count = filtered_queryset.aggregate(Sum('show_count'))
+        # Один вызов aggregate(): Метод aggregate() вызывается один раз с тремя агрегатными функциями,
+        # что уменьшает количество запросов к базе данных и увеличивает производительность.
+        aggregation = filtered_queryset.aggregate(
+            total_viewing_time_seconds_sum=Sum('total_viewing_time'),
+            max_viewers_count_max=Max('max_viewers_count'),
+            show_count_sum=Sum('show_count')
+        )
+
+        # Преобразуем секунды в формат времени, убедившись, что значение не None
+        # Проверка на None и преобразование timedelta в строку
+        aggregation['total_viewing_time_sum'] = str(
+            aggregation['total_viewing_time_seconds_sum']
+        ) if aggregation['total_viewing_time_seconds_sum'] else '00:00:00'
 
         # Подготавливаем и отправляем ответ
         data = {
-            'total_viewing_time': total_viewing_time['total_viewing_time__sum'],
-            'max_viewers_count': max_viewers_count['max_viewers_count__max'],
-            'show_count': show_count['show_count__sum']
+            'total_viewing_time': aggregation['total_viewing_time_sum'],
+            'max_viewers_count': aggregation['max_viewers_count_max'],
+            'show_count': aggregation['show_count_sum']
         }
 
         return Response(data, status=status.HTTP_200_OK)
