@@ -111,7 +111,7 @@ class StatisticsViewSet(ModelViewSet):
         # Проверка на None и преобразование timedelta в строку
         aggregation['total_viewing_time_sum'] = str(
             aggregation['total_viewing_time_seconds_sum']
-        ) if aggregation['total_viewing_time_seconds_sum'] else '00:00:00'
+        ) if aggregation['total_viewing_time_seconds_sum'] else None
 
         # Подготавливаем и отправляем ответ
         data = {
