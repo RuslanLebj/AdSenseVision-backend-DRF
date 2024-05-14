@@ -15,7 +15,8 @@ from django.core.files import File
 from django_filters import rest_framework as filters
 from django.db.models import Sum, Max
 from rest_framework import status
-from datetime import timedelta
+from datetime import datetime, timedelta
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -30,9 +31,65 @@ class ScreenViewSet(ModelViewSet):
     queryset = Screen.objects.all()
     serializer_class = ScreenSerializer
 
+    # Метод для загрузки полного расписания экрана
+    @action(detail=True, methods=['get'], url_path='schedule')
+    def get_full_schedule(self, request, pk=None):
+        try:
+            # Попытка получить экран по переданному pk (primary key)
+            screen = Screen.objects.get(pk=pk)
+        except Screen.DoesNotExist:
+            # В случае отсутствия экрана возвращаем ошибку 404
+            return Response({'error': 'Экран не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Получение всех расписаний для экрана, упорядоченных по порядковому номеру
+        schedules = Schedule.objects.filter(screen=screen).order_by('queue_number')
+        current_time = datetime.combine(datetime.now().date(), screen.start_time)  # Начальное время воспроизведения
+        end_time = datetime.combine(datetime.now().date(), screen.end_time)  # Конечное время воспроизведения
+        # Пауза между видео, преобразованная в объект timedelta
+        pause_duration = timedelta(
+            seconds=screen.pause_time.second + screen.pause_time.minute * 60 + screen.pause_time.hour * 3600)
+
+        result = []  # Список для сохранения результатов расписания
+        video_sequence = list(schedules)  # Преобразование QuerySet в список для циклического доступа
+        index = 0  # Индекс для циклического перебора расписаний
+        id_counter = 1  # Счетчик для генерации новых ID, начиная с 1
+
+        while current_time < end_time:
+            # Получение текущего расписания по индексу, используя модульную арифметику для цикличности
+            schedule = video_sequence[index % len(video_sequence)]
+            print('index ' + str(index))
+            print('len(video_sequence) ' + str(len(video_sequence)))
+            print(schedule)
+            # Проверка наличия медиаконтента и его длительности
+            if schedule.media_content and schedule.media_content.duration:
+                start_video_time = current_time  # Запоминаем время начала видео
+                # Преобразование длительности видео в timedelta
+                video_duration = timedelta(
+                    seconds=schedule.media_content.duration.second + schedule.media_content.duration.minute * 60 + schedule.media_content.duration.hour * 3600)
+                end_video_time = start_video_time + video_duration  # Вычисление времени окончания видео
+
+                if end_video_time > end_time:
+                    # Прерывание цикла, если время окончания видео выходит за пределы рабочего времени экрана
+                    break
+
+                # Добавление записи в результат
+                result.append({
+                    'id': id_counter,  # Используем уникальный счетчик ID
+                    'start_time': start_video_time.time().isoformat(),  # Форматирование времени в ISO
+                    'end_time': end_video_time.time().isoformat(),
+                    'media_content_id': schedule.media_content.id,
+                    'screen_id': screen.id
+                })
+
+                current_time = end_video_time + pause_duration  # Обновление текущего времени с учетом паузы
+                id_counter += 1  # Увеличение счетчика ID для следующей записи
+            index += 1  # Увеличение индекса для перехода к следующему расписанию
+
+        return JsonResponse(result, safe=False, status=status.HTTP_200_OK)
+
     # Метод для загрузки или просмотра данных видеоменеджера по выбранному экрану
     @action(detail=True, methods=['get'], url_path='videomanager/(?P<mode>[^/.]+)')
-    def videomanager(self, request, pk=None, mode=None):
+    def get_videomanager_data(self, request, pk=None, mode=None):
         screen = self.get_object()
         schedules = Schedule.objects.filter(screen=screen)
         media_contents = MediaContent.objects.filter(id__in=schedules.values('media_content_id'))
@@ -63,11 +120,10 @@ class CameraScreenViewSet(ModelViewSet):
 class ScheduleFilter(filters.FilterSet):
     screen = filters.NumberFilter(field_name='screen')
     media_content = filters.NumberFilter(field_name='media_content')
-    queue_number = filters.NumberFilter(field_name='queue_number')
 
     class Meta:
         model = Schedule
-        fields = ['screen', 'media_content', 'queue_number']
+        fields = ['screen', 'media_content']
 
 
 class ScheduleViewSet(ModelViewSet):
@@ -75,6 +131,7 @@ class ScheduleViewSet(ModelViewSet):
     serializer_class = ScheduleSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ScheduleFilter
+
 
 
 class StatisticsFilter(filters.FilterSet):
@@ -94,7 +151,7 @@ class StatisticsViewSet(ModelViewSet):
 
     # Отправка агрегированных данных для отфильтрованного набора данных (queryset)
     @action(detail=False, methods=['get'], url_path='aggregate')
-    def aggregate_statistics(self, request):
+    def get_aggregated_statistics(self, request):
         # Фильтруем queryset согласно переданным параметрам фильтрации
         filtered_queryset = self.filter_queryset(self.get_queryset())
 
