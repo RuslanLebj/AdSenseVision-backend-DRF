@@ -118,8 +118,12 @@ class MediaContentCreateSerializer(serializers.ModelSerializer):
         # Установка текущей даты и времени загрузки
         media_content.upload_date = timezone.now()
 
-        # Извлечение продолжительности видео и сохранение ее в формате MM:SS
-        media_content.duration = str(int(video.duration // 60)) + ":" + str(int(video.duration % 60))
+        # Извлечение и форматирование продолжительности видео в формат ЧЧ:ММ:СС
+        total_seconds = int(video.duration)
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        seconds = total_seconds % 60
+        media_content.duration = f"{hours:02}:{minutes:02}:{seconds:02}"
 
         # Задаем время кадра для превью
         frame_time = 0
