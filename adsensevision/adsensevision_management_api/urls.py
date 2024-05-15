@@ -4,6 +4,11 @@ from .views import CameraViewSet, CameraScreenViewSet, ScreenViewSet, MediaConte
     StatisticsViewSet, CameraServiceDetailAPIView, StatisticsPerShowViewSet
 from django.conf import settings
 from django.conf.urls.static import static
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView
+)
 
 # Создание экземпляра router
 router = DefaultRouter()
@@ -20,6 +25,19 @@ router.register(r'statisticspershow', StatisticsPerShowViewSet, basename='frames
 urlpatterns = [
     path('api/', include(router.urls)),
     path('api/camera-service-detail', CameraServiceDetailAPIView.as_view(), name='camera-service-detail'),
+    # Swagger:
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    # Optional UI:
+    path(
+        'api/schema/swagger-ui/',
+        SpectacularSwaggerView.as_view(url_name='schema'),
+        name='swagger-ui'
+    ),
+    path(
+        'api/schema/redoc/',
+        SpectacularRedocView.as_view(url_name='schema'),
+        name='redoc'
+    ),
 ]
 
 # Регистрация медиа файлов
