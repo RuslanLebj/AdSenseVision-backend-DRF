@@ -78,6 +78,8 @@ class ScreenViewSet(ModelViewSet):
                     'start_time': start_video_time.time().isoformat(),  # Форматирование времени в ISO
                     'end_time': end_video_time.time().isoformat(),
                     'media_content_id': schedule.media_content.id,
+                    'media_content_name': schedule.media_content.name,
+                    'screen_name': screen.name,
                     'screen_id': screen.id
                 })
 
