@@ -20,12 +20,6 @@ class CameraScreenSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ScheduleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Schedule
-        fields = '__all__'
-
-
 class ScreenSerializer(serializers.ModelSerializer):
     class Meta:
         model = Screen
@@ -148,3 +142,10 @@ class MediaContentCreateSerializer(serializers.ModelSerializer):
         media_content.save(update_fields=['name', 'duration', 'preview', 'upload_date'])
         return instance
 
+
+class ScheduleSerializer(serializers.ModelSerializer):
+    media_content_detail = MediaContentReadSerializer(source='media_content', read_only=True)
+
+    class Meta:
+        model = Schedule
+        fields = '__all__'
