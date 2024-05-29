@@ -6,6 +6,22 @@
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.db import transaction
+from django.db.models import F
+from rest_framework import serializers, viewsets
+from datetime import timedelta
+from datetime import datetime
+
+
+def time_to_timedelta(time_obj):
+    return timedelta(hours=time_obj.hour, minutes=time_obj.minute, seconds=time_obj.second)
+
+
+def add_times(time1, time2):
+    datetime1 = datetime.combine(datetime.min, time1)
+    datetime2 = datetime.combine(datetime.min, time2)
+    return (datetime1 + (datetime2 - datetime.min)).time()
+
 
 
 class Camera(models.Model):
@@ -106,5 +122,23 @@ class StatisticsPerShow(models.Model):
         # Параметры для панели администратора
         verbose_name = "Статистика показа"
         verbose_name_plural = "Статистика показа"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        with transaction.atomic():
+            statistics, created = Statistics.objects.get_or_create(
+                media_content=self.media_content,
+                screen=self.screen,
+                defaults={
+                    'total_viewing_time': self.viewing_time,
+                    'max_viewers_count': self.viewers_count,
+                    'show_count': 1
+                }
+            )
+            if not created:
+                statistics.total_viewing_time = add_times(statistics.total_viewing_time, self.viewing_time)
+                statistics.max_viewers_count = max(statistics.max_viewers_count, self.viewers_count)
+                statistics.show_count = F('show_count') + 1
+                statistics.save()
 
 
